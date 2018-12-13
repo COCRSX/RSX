@@ -56,6 +56,6 @@ void bladeUnlock(){
 }
 void detatch(){
   Serial.println("Deteaching...");
-  digitalWrite(relayPin1,LOW); //Close payload MC power line
+  digitalWrite(relayPin1,HIGH); //Close payload MC power line
   digitalWrite(relayPin2, HIGH); // Open on board battery line 
 }
