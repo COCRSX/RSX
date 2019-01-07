@@ -13,14 +13,20 @@ const byte signalCapsule = 4; //Pin to signal capsule
 void setup() {
   pinMode(relayPin1, OUTPUT); //Initialize relay1
   pinMode(relayPin2, OUTPUT); //Initialize relay2
-  digitalWrite(relayPin1, HIGH); //Open latch relay
-  digitalWrite(relayPin2, HIGH); //Open motor relay
-  digitalWrite(signalCapsule, HIGH); //Signal capsule to close latches. 
   attachInterrupt(digitalPinToInterrupt(buttonPressure),closeMotor,HIGH); //close motor after a certain distance
 }
 
 void loop() {
   
+}
+bool heightCheck(){
+  //used in ready2launch.
+  return 
+}
+void ready2Launch(){
+  digitalWrite(relayPin1, HIGH); //Open latch relay
+  digitalWrite(relayPin2, HIGH); //Open motor relay
+  digitalWrite(signalCapsule, HIGH); //Signal capsule to close latches.
 }
 
 void closeMotor(){
