@@ -1,12 +1,15 @@
-/* Programmers: 
- * Description: 
- * 
- * 
- * 
+/* Programmers:
+ * Description:
+ *
+ *
+ *
  */
- 
+
 #include "TimerObject.h"
 #include <IridiumSBD.h>
+#include <SPI.h>
+#include <math.h>
+
 
 #define IridiumSerial Serial3
 #define DIAGNOSTICS false //true for Diag.
@@ -14,7 +17,7 @@
 IridiumSBD modem(IridiumSerial); //Create a new instance
 Timer t; //New timer object for second interrupt
 volatile byte bladeState = 0; //Blades have not unlocked
-const byte activePin = 1; //Capsule MC will sense when the pin is high. 
+const byte activePin = 1; //Capsule MC will sense when the pin is high.
 const byte relayPin1 = 2; //Detatch relay pin
 const byte relayPin2 = 3; //Attach battery pin
 const byte relayPin3 = 4; //Activate blade relay pin
@@ -25,7 +28,7 @@ double gyro[]; //Store data from gyro sensor
 void setup() {
   int signalQuality = -1; //signalQualitiy ready to transfer would be 2 or better
   int err; //Error code
-  
+
   // Start the console serial port
   Serial.begin(115200);
   while (!Serial); //wait until serial port is open
@@ -71,9 +74,9 @@ void setup() {
   Serial.print("On a scale of 0 to 5, signal quality is currently ");
   Serial.print(signalQuality);
   Serial.println(".");
-  
+
   pinMode(relayPin1, OUTPUT); //Initialize detach relay
-  pinMode(relayPin2, OUTPUT); //Initialize battery relay 
+  pinMode(relayPin2, OUTPUT); //Initialize battery relay
   pinMode(relayPin3, OUTPUT); //Initialize blade relay
   attachInterrupt(digitalPinToInterrupt(activePin),detatch,HIGH); //Interrupt 1 when payload MC sets pin to High
   t.bladeUnlock(); //Interrupt 2 when timer goes off
@@ -84,7 +87,7 @@ void loop() {
   gyro = 3in1Gyro();
   data = parsing(temp, gyro);
   iridium(data);
-  t.update(); 
+  t.update();
 }
 
 double 3in1Temp(){
@@ -118,13 +121,13 @@ void iridium(double data){
 void bladeUnlock(){
   Serial.println("Blade Unlocking...");
   if(bladeState == 0){ //Since we have to paths to get here we need to make sure that we dont activate the blades twice
-    digitalWrite(relayPin3, HIGH); //Open battery to solenoid 
+    digitalWrite(relayPin3, HIGH); //Open battery to solenoid
     bladeState = 1;
   }
-  
+
 }
 void detatch(){
   Serial.println("Deteaching...");
   digitalWrite(relayPin1,HIGH); //Close payload MC power line
-  digitalWrite(relayPin2, HIGH); // Open on board battery line 
+  digitalWrite(relayPin2, HIGH); // Open on board battery line
 }
