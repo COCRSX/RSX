@@ -91,3 +91,10 @@ error2(){
 raspberryPi(){
 	/* Bluetooth acting as our iridium system for testing */
 }
+
+on(){
+	
+}
+off(){
+	
+}
