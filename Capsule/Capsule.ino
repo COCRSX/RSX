@@ -9,48 +9,70 @@ Module: Capsule
 
 
 Description:
-Programmers: Luis Ivey,
+Programmers: Luis Ivey, Kyle Strem
 
 
 */
-// HEADERS
-
+/* ------------------------------------------------------------------ */
+/* HEADERS */
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <SparkFun_MS5803_I2C.h>
+/* ------------------------------------------------------------------ */
 
-// TODO: Define pin values for the sensors with their actual values
-#define BME280SDI 0
-#define BME280SCK 1
-
-// KEVIN: Deal with yostlabs pin assignments
-#define YOSTLABPINA 1000
-#define YOSTLABPINB 1000
-// ...
-
-// KEVIN: Figure out which pins (if any) do we need to assign for the MS5803-14BA Sensor
-#define ALTIMETERPIN 3 // MS5803_14BA
-
-// TODO: Define payload's arduino mega communication pin
-#define PAYLOADDECKMEGA 000
-
+/* ------------------------------------------------------------------ */
+/* PIN ASSIGNMENTS */
 // BME280
-Adafruit_BME280 bme; // Uses I2C protocol
+#define BME280SDI         A4
+#define BME280SCK         A5
+
+// YOST LAB 3-SPACE
+#define YOSTLABTX         D3
+#define YOSTLABRX         D2
+
+// MS5803 ALTIMETER
+#define MS5803SDI         A6
+#define MS5803SCK         A7
+
+// PAYLOAD DECK ARDUINO MEGA
+#define PAYLOADDECKMEGA1  A0
+#define PAYLOADDECKMEGA2  A1
+
+// PIEZO
+#define PIEZO             D9
+
+// ULTIMATE GPS
+#define ULTIMATEGPSTX     D7
+#define ULTIMATEGPSRX     D6
+
+// CHRONODOT TIMER
+#define CHRONODOTSCL      D4
+#define CHRONODOTSDA      D5
+
+// IRIDIUM TRANS
+#define IRIDIUMTX         A2
+#define IRIDIUMRX         A3
+
+// BLADES
+#define BLADES            D8
+/* ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------ */
+/* Other Constants */
 #define SEALEVELPRESSURE_HPA (1013.25)
-
-// MS5803_14BA
-MS5803 sfe(ADDRESS_HIGH);
+// Inline function for getting an altitude reading from the MS5803 Altimeter
 inline double altitude_ms5803(double P) return(44330.0*(1-pow(P/SEALEVELPRESSURE_HPA,1/5.255)));
+/* ------------------------------------------------------------------ */
 
-// Global struct for packaging transmission data
+/* ------------------------------------------------------------------ */
+/* Capsule Struct for transmission */
 struct capsule {
   // BME280
   float temperature;
   float humidity;
   float pressure;
-  float altitude_bme;
 
   // SFE MS5803-14BA
   float altitude_sfe;
@@ -60,11 +82,19 @@ struct capsule {
   float acceleration;
 
   // Errors
-  byte errors = 0;
+  byte  errors = 0;
 }
+/* ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------ */
+/* Initialization */
+Adafruit_BME280 bme; // Uses I2C protocol
+MS5803          sfe(ADDRESS_HIGH);
+capsule         mapple;
+/* ------------------------------------------------------------------ */
 
 void setup(){
-
+  attachInterrupt(digitalPinToInterrupt(PAYLOADDECKMEGA1),detach,HIGH);
 }
 
 void loop(){
@@ -80,16 +110,18 @@ void iridium (){
 }
 
 void bme280(){
-// Read Data (Temperature, Altitude, Pressure)
+// Read Data (Temperature, Humidity, Pressure)
 float temperature = bme.readTemperature();
-float altitude    = bme.readAltitude(SEALEVELPRESSURE_HPA);
+float humidity    = bme.readHumidity();
 float pressure    = bme.readPressure() / 100.0F;
 
-// TODO: Update global struct with new data values
+mapple.temperature  = temperature;
+mapple.humidity     = humidity;
+mapple.pressure     = pressure;
 }
 
 void yostLab(){
-// KEVIN: Write code to interface with the yostlab sensor and then update the global struct with new values.
+// TODO: Write code to interface with the yostlab sensor and then update the global struct with new values.
 // Read Data
 }
 
@@ -97,7 +129,7 @@ void MS5803_14BA(){
 // Read Data (Altitude)
 float altitude = float(altitude_ms5803(sfe.getPressure(ADC_4096)));
 
-// TODO: Update global struct with new data values
+mapple.altitude_sfe = altitude;
 }
 
 void parsing(){
@@ -140,11 +172,6 @@ The time interval that will take the rod to push the capsule off Wallops' rocket
 will determine our timer's set time to release the capsule's blades. */
 
 
-}
-
-bool readSignal(){
-	/*The capsule’s atmega328p microcontroller has read a high signal from the payload's Arduino Mega. */
-	attachInterrupt(digitalPinToInterrupt(PAYLOADDECKMEGA), timerOffRocket, HIGH)
 }
 
 void piezoOn(){
