@@ -24,8 +24,8 @@ Programmers: Luis Ivey,
 #---------------------------------------
 
 #---------------------------------------
-#define BME280SDI 23
-#define BME280SCK 24
+#define BME280SDI A4
+#define BME280SCK A5
 
 
 #define YOSTLABTX D3
@@ -49,6 +49,8 @@ Programmers: Luis Ivey,
 #define IRIDIUMRX A3
 
 #define BLADES D8
+
+#define RELAY D1 
 
 #----------------------------------------
 
@@ -94,10 +96,11 @@ capsule mapple;
 #----------------------------------------
 void setup(){
   float seaLevel_Pressure = 1013.25;
+  attachInterrupt(digitalPinToInterrupt(PAYLOADDECK1),detach,HIGH);
 }
 
 void loop(){
-attachInterrupt(digitalPinToInterrupt(PAYLOADDECK1),detach,HIGH); 
+ 
 
 }
 
@@ -149,6 +152,7 @@ void detach(){
 This will cause the activation of Relay 4 to start supplying power to our capsule (inhibited batteries). 
 The signal will also cut power from Relay 3 to prevent any induced current during the action of the wire 
 being pulled out from the capsule by the deck’s rod motion. */
+
 
 }
 
